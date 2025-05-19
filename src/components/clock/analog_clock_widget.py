@@ -1,19 +1,23 @@
 from PySide6.QtWidgets import QWidget
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QPainter, QPen, QColor, QBrush
-import math
 from datetime import datetime
 
 class AnalogClockWidget(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setMinimumSize(200, 200)
-        self.setStyleSheet("background-color: white;")
-        # self._time = datetime.utcnow()
+        self._time = datetime.utcnow()
+        self._style = "light"  # initial style (will be updated)
 
     def update_time(self, dt: datetime):
-        """Accepts a timezone-aware datetime object and triggers repaint."""
+        """
+        Receives a timezone-aware datetime and updates both time and style.
+        """
         self._time = dt
+        hour = dt.hour
+        # Define day: 6am–6pm
+        self._style = "light" if 6 <= hour < 18 else "dark"
         self.update()
 
     def paintEvent(self, event):
@@ -26,21 +30,35 @@ class AnalogClockWidget(QWidget):
         painter.translate(self.width() / 2, self.height() / 2)
         painter.scale(side / 200.0, side / 200.0)
 
-        # Draw clock face
+        # Choose style based on time
+        if self._style == "light":
+            bg_color = QColor("#f0f0f0")
+            hour_color = "#333"
+            min_color = "#666"
+            sec_color = "#cc0000"
+            tick_color = Qt.black
+        else:
+            bg_color = QColor("#1e1e1e")
+            hour_color = "#bbbbbb"
+            min_color = "#888888"
+            sec_color = "#ff5555"
+            tick_color = QColor("#aaaaaa")
+
+        # Draw background
         painter.setPen(Qt.NoPen)
-        painter.setBrush(QBrush(QColor("#f0f0f0")))
+        painter.setBrush(QBrush(bg_color))
         painter.drawEllipse(-95, -95, 190, 190)
 
-        # Hour marks
-        painter.setPen(QPen(Qt.black, 1))
+        # Hour ticks
+        painter.setPen(QPen(tick_color, 1))
         for i in range(12):
             painter.drawLine(0, -88, 0, -95)
             painter.rotate(30)
 
         # Draw hands
-        self.draw_hand(painter, angle=self._hour_angle(),   length=50, width=6, color="#333")
-        self.draw_hand(painter, angle=self._minute_angle(), length=70, width=4, color="#666")
-        self.draw_hand(painter, angle=self._second_angle(), length=85, width=2, color="#cc0000")
+        self.draw_hand(painter, self._hour_angle(),   50, 6, hour_color)
+        self.draw_hand(painter, self._minute_angle(), 70, 4, min_color)
+        self.draw_hand(painter, self._second_angle(), 85, 2, sec_color)
 
     def draw_hand(self, painter, angle, length, width, color):
         painter.save()
