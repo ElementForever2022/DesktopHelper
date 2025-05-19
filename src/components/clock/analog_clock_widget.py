@@ -4,7 +4,7 @@ from PySide6.QtGui import QPainter, QPen, QColor, QBrush
 import math
 from datetime import datetime
 
-class AnalogClock(QWidget):
+class AnalogClockWidget(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setMinimumSize(200, 200)

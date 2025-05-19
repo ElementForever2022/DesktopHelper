@@ -3,7 +3,7 @@ from PySide6.QtCore import Qt
 from components.clock.time_utils import get_current_time
 from datetime import datetime
 
-class ClockWidget(QLabel):
+class DigitalClockWidget(QLabel):
     """
     A QLabel-based widget that displays the current time,
     updated externally via update(datetime) method.

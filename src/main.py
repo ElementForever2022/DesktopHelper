@@ -22,8 +22,8 @@ class DesktopHelper(QWidget):
         self.button = QPushButton("Click me")
         self.button.clicked.connect(self.show_dialog)
         
-        # Create time label
-        self.local_timezone = str(tzlocal.get_localzone()) # str format of local timezone e.g."Asia/Shanghai"
+        # Create time components
+        self.local_timezone = str(tzlocal.get_localzone()) # str format of LOCAL timezone e.g."Asia/Tokyo"
         self.tz_selector = TimezoneSelector(default_tz=self.local_timezone)
         self.dual_clock_widget = DualClockWidget(time_format="YYYY-MM-DD HH:mm:SS", zone=self.local_timezone)
         self.tz_selector.timezone_changed.connect(self.dual_clock_widget.set_timezone)

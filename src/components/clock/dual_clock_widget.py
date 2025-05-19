@@ -1,7 +1,7 @@
 from PySide6.QtWidgets import QWidget, QVBoxLayout
 from PySide6.QtCore import QTimer
-from .clock_widget import ClockWidget
-from .analog_clock import AnalogClock
+from .analog_clock_widget import AnalogClockWidget
+from .digital_clock_widget import DigitalClockWidget
 from .time_utils import get_current_time
 
 class DualClockWidget(QWidget):
@@ -14,12 +14,12 @@ class DualClockWidget(QWidget):
         self.time_format = time_format
         self.zone = zone
 
-        self.digital = ClockWidget(time_format=self.time_format)
-        self.analog = AnalogClock()
+        self.digital_clock_widget = DigitalClockWidget(time_format=self.time_format)
+        self.analog_clock_widget = AnalogClockWidget()
 
         layout = QVBoxLayout()
-        layout.addWidget(self.digital)
-        layout.addWidget(self.analog)
+        layout.addWidget(self.digital_clock_widget)
+        layout.addWidget(self.analog_clock_widget)
         self.setLayout(layout)
 
         self.timer = QTimer(self)
@@ -29,8 +29,8 @@ class DualClockWidget(QWidget):
 
     def update_time(self):
         info = get_current_time(self.time_format, self.zone)
-        self.digital.update_info(info)
-        self.analog.update_time(info["datetime"])
+        self.digital_clock_widget.update_info(info)
+        self.analog_clock_widget.update_time(info["datetime"])
 
     def set_timezone(self, zone):
         """Dynamically update timezone."""
