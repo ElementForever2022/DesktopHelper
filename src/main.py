@@ -1,10 +1,12 @@
 import sys
 from PySide6.QtWidgets import QApplication, QWidget, QPushButton, QMessageBox, QVBoxLayout, QLabel
-from PySide6.QtCore import QTimer, QDateTime
+from PySide6.QtCore import QTimer, QDateTime, Qt
 
 from components.clock.clock_widget import ClockWidget
+from components.clock.analog_clock import AnalogClock
+from components.clock.timezone_selector import TimezoneSelector
 
-class DesktopAssistant(QWidget):
+class DesktopHelper(QWidget):
     def __init__(self):
         super().__init__()
         self.init_ui()
@@ -19,11 +21,18 @@ class DesktopAssistant(QWidget):
         self.button.clicked.connect(self.show_dialog)
         
         # Create time label
-        clock_label = ClockWidget(time_format="YYYY-MM-DD HH:mm:SS", zone="Asia/Tokyo")
-
+        self.clock_label = ClockWidget(time_format="YYYY-MM-DD HH:mm:SS", zone="Asia/Tokyo")
+        self.analog_clock = AnalogClock()
+        self.tz_selector = TimezoneSelector(default_tz="Asia/Shanghai")
+        
+        self.tz_selector.timezone_changed.connect(lambda tz: setattr(self.clock_label, "zone", tz))
+        self.tz_selector.timezone_changed.connect(lambda tz: setattr(self.analog_clock, "zone", tz))
+        
         # Set layout
         layout = QVBoxLayout()
-        layout.addWidget(clock_label)
+        layout.addWidget(self.clock_label)
+        layout.addWidget(self.analog_clock)
+        layout.addWidget(self.tz_selector)
         layout.addWidget(self.button)
         self.setLayout(layout)
 
@@ -32,6 +41,6 @@ class DesktopAssistant(QWidget):
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    window = DesktopAssistant()
+    window = DesktopHelper()
     window.show()
     sys.exit(app.exec())

@@ -1,5 +1,5 @@
 from PySide6.QtWidgets import QLabel
-from PySide6.QtCore import QTimer
+from PySide6.QtCore import QTimer, Qt
 
 from .get_current_time import get_current_time
 
@@ -27,6 +27,9 @@ class ClockWidget(QLabel):
 
         # Initial update
         self.update_time()
+        
+        # set alignment
+        self.setAlignment(Qt.AlignCenter)
 
     def update_time(self):
         info = get_current_time(self.time_format, self.zone)
