@@ -1,10 +1,12 @@
 import sys
+
 from PySide6.QtWidgets import QApplication, QWidget, QPushButton, QMessageBox, QVBoxLayout, QLabel
 from PySide6.QtCore import QTimer, QDateTime, Qt
-
-from components.clock.clock_widget import ClockWidget
-from components.clock.analog_clock import AnalogClock
+import tzlocal
+# from components.clock.clock_widget import ClockWidget
+# from components.clock.analog_clock import AnalogClock
 from components.clock.timezone_selector import TimezoneSelector
+from components.clock.dual_clock_widget import DualClockWidget
 
 class DesktopHelper(QWidget):
     def __init__(self):
@@ -21,18 +23,15 @@ class DesktopHelper(QWidget):
         self.button.clicked.connect(self.show_dialog)
         
         # Create time label
-        self.clock_label = ClockWidget(time_format="YYYY-MM-DD HH:mm:SS", zone="Asia/Tokyo")
-        self.analog_clock = AnalogClock()
-        self.tz_selector = TimezoneSelector(default_tz="Asia/Shanghai")
-        
-        self.tz_selector.timezone_changed.connect(lambda tz: setattr(self.clock_label, "zone", tz))
-        self.tz_selector.timezone_changed.connect(lambda tz: setattr(self.analog_clock, "zone", tz))
-        
+        self.local_timezone = str(tzlocal.get_localzone()) # str format of local timezone e.g."Asia/Shanghai"
+        self.tz_selector = TimezoneSelector(default_tz=self.local_timezone)
+        self.dual_clock_widget = DualClockWidget(time_format="YYYY-MM-DD HH:mm:SS", zone=self.local_timezone)
+        self.tz_selector.timezone_changed.connect(self.dual_clock_widget.set_timezone)
+
         # Set layout
         layout = QVBoxLayout()
-        layout.addWidget(self.clock_label)
-        layout.addWidget(self.analog_clock)
         layout.addWidget(self.tz_selector)
+        layout.addWidget(self.dual_clock_widget)
         layout.addWidget(self.button)
         self.setLayout(layout)
 

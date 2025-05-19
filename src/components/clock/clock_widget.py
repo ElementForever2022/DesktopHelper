@@ -1,36 +1,22 @@
 from PySide6.QtWidgets import QLabel
-from PySide6.QtCore import QTimer, Qt
-
-from .get_current_time import get_current_time
+from PySide6.QtCore import Qt
+from components.clock.time_utils import get_current_time
+from datetime import datetime
 
 class ClockWidget(QLabel):
     """
-    A reusable QLabel-based widget that displays the current time
-    and updates automatically every second.
-
-    Parameters:
-        time_format (str): Custom format string like "HH:mm:SS"
-        zone (int or str): UTC offset (int) or pytz timezone string (str)
+    A QLabel-based widget that displays the current time,
+    updated externally via update(datetime) method.
     """
-    def __init__(self, time_format: str = "HH:mm:SS", zone=None, parent=None):
+
+    def __init__(self, time_format: str = "HH:mm:SS", parent=None):
         super().__init__(parent)
         self.time_format = time_format
-        self.zone = zone
-
-        # Optional styling
+        self.setAlignment(Qt.AlignCenter)
         self.setStyleSheet("font-size: 20px; padding: 5px;")
 
-        # Start timer to update every second
-        self.timer = QTimer(self)
-        self.timer.timeout.connect(self.update_time)
-        self.timer.start(10)
-
-        # Initial update
-        self.update_time()
-        
-        # set alignment
-        self.setAlignment(Qt.AlignCenter)
-
-    def update_time(self):
-        info = get_current_time(self.time_format, self.zone)
+    def update_info(self, info: dict):
+        """
+        update the text from the input time info
+        """
         self.setText(info["raw"])
