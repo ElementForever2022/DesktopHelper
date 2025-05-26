@@ -7,7 +7,7 @@ class AnalogClockWidget(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setMinimumSize(200, 200)
-        self._time = datetime.utcnow()
+        self._time = datetime.now()
         self._style = "light"  # initial style (will be updated)
 
     def update_time(self, dt: datetime):
@@ -19,6 +19,8 @@ class AnalogClockWidget(QWidget):
         # Define day: 6am–6pm
         self._style = "light" if 6 <= hour < 18 else "dark"
         self.update()
+        
+    
 
     def paintEvent(self, event):
         if not self._time:

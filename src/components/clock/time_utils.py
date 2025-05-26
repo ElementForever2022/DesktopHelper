@@ -4,6 +4,41 @@ import pytz
 import re
 from functools import lru_cache
 
+# to calc the lantitude and longitude of a city and calc sunrise and sunset time 
+from astral import LocationInfo
+from astral.sun import sun
+
+from geopy.geocoders import Nominatim
+
+def get_coordinates_from_city(city_name: str):
+    """
+    Given a city name, return (latitude, longitude) using OpenStreetMap Nominatim API.
+    
+    Args:
+        city_name (str): Name of the city, e.g. 'Shanghai', 'New York'
+    
+    Returns:
+        (lat, lon): Tuple of floats
+    """
+    geolocator = Nominatim(user_agent="clock-city-locator")
+    location = geolocator.geocode(city_name)
+    if location:
+        return location.latitude, location.longitude
+    else:
+        raise ValueError(f"City '{city_name}' not found.")
+
+
+def is_daytime(city_name="Shanghai", region="China", latitude=31.2304, longitude=121.4737, dt: datetime = None) -> bool:
+    """
+    Returns True if the given datetime (or now) is between sunrise and sunset in the given city.
+    """
+    location = LocationInfo(city_name, region, "UTC", latitude, longitude)
+    if dt is None:
+        dt = datetime.now(pytz.utc).astimezone(pytz.timezone("Asia/Shanghai"))
+    s = sun(location.observer, date=dt.date(), tzinfo=dt.tzinfo)
+
+    return s["sunrise"] <= dt <= s["sunset"]
+
 @lru_cache(maxsize=64)
 def get_timezone(tz: str):
     """Cache and return a pytz timezone object."""
@@ -90,15 +125,8 @@ def get_current_time(form: str, zone: Union[int, str, None] = None) -> Dict:
 if __name__ == '__main__':
     # s = get_current_time("YYYY-MM-DD HH-mm-ss", 8, "Asia/Shanghai")
     import time
-    import random
-    import json
-    t0 = time.time()
-    for i in range(100):
-        utc = random.randint(-12,12)
-        s = get_current_time("YYYY-MM-DD HH-mm-ss",utc)
-        d = get_current_time("HH-mm-ss",utc)
-        # j = json.dumps(d, sort_keys=True, indent=4, separators=(',', ': '))
-        print(s, f'{time.time()-t0:.3f}s')
-    #     t0 = time.time()
-        # time.sleep(0.01)
-        
+    cities = ['Tokyo', 'Peking', 'Hong Kong', 'Guangzhou', 'Pyongyang']
+    for city in cities:
+        lat,lon = get_coordinates_from_city(city)
+        print(city, lat, lon)
+        time.sleep(2)
